@@ -302,7 +302,7 @@
   }
 
   .header-nav_elements {
-    @apply mt-8 flex w-full flex-col items-start gap-5;
+    @apply mt-8 flex w-full flex-col items-start gap-1; /*gap-5*/
   }
 
   /* Search Component */
