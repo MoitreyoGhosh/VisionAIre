@@ -8,6 +8,7 @@ export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
+    console.log('Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local');
     throw new Error('Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local');
   }
 
@@ -17,10 +18,13 @@ export async function POST(req: Request) {
   const svix_signature = headerPayload.get("svix-signature");
 
   if (!svix_id || !svix_timestamp || !svix_signature) {
+    console.error('Missing Svix headers');
     return new Response('Error occurred -- no svix headers', { status: 400 });
   }
 
   const payload = await req.json();
+  console.log('Payload:', payload);
+
   const body = JSON.stringify(payload);
 
   const wh = new Webhook(WEBHOOK_SECRET);
@@ -33,6 +37,7 @@ export async function POST(req: Request) {
       "svix-timestamp": svix_timestamp,
       "svix-signature": svix_signature,
     }) as WebhookEvent;
+    console.log('Webhook verified:', evt);
   } catch (err) {
     console.error('Error verifying webhook:', err);
     return new Response('Error occurred', { status: 400 });
@@ -56,6 +61,7 @@ export async function POST(req: Request) {
       if (newUser) {
         await clerkClient.users.updateUserMetadata(id, { publicMetadata: { userId: newUser._id } });
       }
+      console.log('Created user:', newUser);
       return NextResponse.json({ message: "OK", user: newUser });
     }
 
@@ -68,16 +74,23 @@ export async function POST(req: Request) {
         photo: image_url ?? '',
       };
       const updatedUser = await updateUser(id, user);
+      console.log('Updated user:', updatedUser);
       return NextResponse.json({ message: "OK", user: updatedUser });
     }
 
     if (eventType === "user.deleted") {
       const { id } = evt.data;
       const deletedUser = await deleteUser(id as string);
+      console.log('Deleted user:', deletedUser);
       return NextResponse.json({ message: "OK", user: deletedUser });
     }
   } catch (error) {
     console.error('Error handling webhook event:', error);
+    console.error('Error handling webhook event:', {
+      eventType,
+      error,
+      eventData: evt.data,
+    });
     return new Response('Error occurred', { status: 500 });
   }
 
