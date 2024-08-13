@@ -17,15 +17,15 @@ const AddTransformationTypePage = ({ params: { type } }: SearchParamProps) => {
   useEffect(() => {
     const fetchUser = async () => {
       const userId = user?.id;
-  
+
       if (!userId) {
         console.error("No user ID found, redirecting to sign-in");
         router.push("/sign-in");
         return;
       }
-  
+
       console.log("Fetching user with ID:", userId);
-  
+
       try {
         const userFromDb = await getUserById(userId);
         if (!userFromDb) {
@@ -40,7 +40,7 @@ const AddTransformationTypePage = ({ params: { type } }: SearchParamProps) => {
         router.push("/sign-in");
       }
     };
-  
+
     fetchUser();
   }, [user, router]);
 
@@ -52,13 +52,14 @@ const AddTransformationTypePage = ({ params: { type } }: SearchParamProps) => {
   return (
     <>
       <Header title={transformation.title} subtitle={transformation.subTitle} />
-
-      <TransformationForm
-        action="Add"
-        userId={dbuser._id}
-        type={transformation.type as TransformationTypeKey}
-        creditBalance={dbuser.creditBalance}
-      />
+      <section className="mt-10">
+        <TransformationForm
+          action="Add"
+          userId={dbuser._id}
+          type={transformation.type as TransformationTypeKey}
+          creditBalance={dbuser.creditBalance}
+        />
+      </section>
     </>
   );
 };
