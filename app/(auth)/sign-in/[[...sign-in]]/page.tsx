@@ -1,9 +1,18 @@
-import { SignIn } from "@clerk/nextjs";
+import { SignIn, useUser } from "@clerk/nextjs";
 import React from "react";
 
 const SignInPage = () => {
-  return <SignIn forceRedirectUrl={'/'} fallbackRedirectUrl={'/'} signUpUrl="/sign-up"
-  />;
+  const { isSignedIn } = useUser();
+
+  if (isSignedIn) return null;
+
+  return (
+    <SignIn
+      forceRedirectUrl={"/"}
+      fallbackRedirectUrl={"/"}
+      signUpUrl="/sign-up"
+    />
+  );
 };
 
 export default SignInPage;
