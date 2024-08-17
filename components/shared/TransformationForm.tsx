@@ -44,6 +44,7 @@ export const formSchema = z.object({
   prompt: z.string().optional(),
   publicId: z.string(),
 });
+
 const TransformationForm = ({
   action,
   data = null,
@@ -54,36 +55,33 @@ const TransformationForm = ({
 }: TransformationFormProps) => {
   const transformationType = transformationTypes[type];
   const [image, setImage] = useState(data);
-  const [newTransformation, setNewTransformation] =
-    useState<Transformations | null>(null);
+  const [newTransformation, setNewTransformation] = useState<Transformations | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTransforming, setIsTransforming] = useState(false);
   const [transformationConfig, setTransformationConfig] = useState(config);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  const initialValues =
-    data && action === "Update"
-      ? {
-          title: data?.title,
-          aspectRatio: data?.aspectRatio,
-          color: data?.color,
-          prompt: data?.prompt,
-          publicId: data?.publicId,
-        }
-      : defaultValues;
+  const initialValues = data && action === 'Update' ? {
+    title: data?.title,
+    aspectRatio: data?.aspectRatio,
+    color: data?.color,
+    prompt: data?.prompt,
+    publicId: data?.publicId,
+  } : defaultValues
 
-  // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
+   // 1. Define your form.
+   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialValues,
-  });
+  })
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values)
     setIsSubmitting(true);
 
-    if(data | image) {
+    if(data || image) {
       const transformationUrl = getCldImageUrl({
         width: image?.width,
         height: image?.height,
