@@ -57,41 +57,45 @@ const TransformationForm = ({
 }: TransformationFormProps) => {
   const transformationType = transformationTypes[type];
   const [image, setImage] = useState(data);
-  const [newTransformation, setNewTransformation] = useState<Transformations | null>(null);
+  const [newTransformation, setNewTransformation] =
+    useState<Transformations | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTransforming, setIsTransforming] = useState(false);
   const [transformationConfig, setTransformationConfig] = useState(config);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  const initialValues = data && action === 'Update' ? {
-    title: data?.title,
-    aspectRatio: data?.aspectRatio,
-    color: data?.color,
-    prompt: data?.prompt,
-    publicId: data?.publicId,
-  } : defaultValues
+  const initialValues =
+    data && action === "Update"
+      ? {
+          title: data?.title,
+          aspectRatio: data?.aspectRatio,
+          color: data?.color,
+          prompt: data?.prompt,
+          publicId: data?.publicId,
+        }
+      : defaultValues;
 
-   // 1. Define your form.
-   const form = useForm<z.infer<typeof formSchema>>({
+  // 1. Define your form.
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialValues,
-  })
+  });
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+    console.log(values);
     setIsSubmitting(true);
 
-    if(data || image) {
+    if (data || image) {
       const transformationUrl = getCldImageUrl({
         width: image?.width,
         height: image?.height,
         src: image?.publicId,
-        ...transformationConfig
-      })
+        ...transformationConfig,
+      });
 
-      const imageData ={
+      const imageData = {
         title: values.title,
         publicId: image?.publicId,
         transformationType: type,
@@ -103,43 +107,41 @@ const TransformationForm = ({
         aspectRatio: values.aspectRatio,
         prompt: values.prompt,
         color: values.color,
-      }
+      };
 
-      if(action === "Add"){
-        try{
+      if (action === "Add") {
+        try {
           const newImage = await addImage({
             image: imageData,
             userId,
             path: "/",
-          })
+          });
 
-          if(newImage) {
-            form.reset()
-            setImage(data)
-            router.push(`/transformations/${newImage._id}`)
+          if (newImage) {
+            form.reset();
+            setImage(data);
+            router.push(`/transformations/${newImage._id}`);
           }
-
-        }catch(error){
+        } catch (error) {
           console.log(error);
         }
       }
 
-      if(action === "Update"){
-        try{
+      if (action === "Update") {
+        try {
           const updatedImage = await updateImage({
             image: {
               ...imageData,
-              _id: data._id
+              _id: data._id,
             },
             userId,
             path: `/transformations/${data._id}`,
-          })
+          });
 
-          if(updatedImage){
+          if (updatedImage) {
             router.push(`/transformations/${updatedImage._id}`);
           }
-
-        }catch(error){
+        } catch (error) {
           console.log(error);
         }
       }
@@ -180,9 +182,10 @@ const TransformationForm = ({
           [fieldName === "prompt" ? "prompt" : "to"]: value,
         },
       }));
+    }, 1000)();
 
-      return onChangeField(value);
-    }, 1000);
+
+    return onChangeField(value);
   };
 
   //TODO: Update creditFee to something else than 1
@@ -196,20 +199,20 @@ const TransformationForm = ({
     setNewTransformation(null);
 
     startTransition(async () => {
-      await updateCredits(userId, creditFee)
+      await updateCredits(userId, creditFee);
     });
   };
 
   useEffect(() => {
-    if(image && (type === 'restore' || type === 'removeBackground')){
-      setNewTransformation(transformationType.config)
+    if (image && (type === "restore" || type === "removeBackground")) {
+      setNewTransformation(transformationType.config);
     }
-  }, [image, transformationType.config, type])
+  }, [image, transformationType.config, type]);
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        {creditBalance < Math.abs(creditFee) && <InsufficientCreditsModal />}        
+        {creditBalance < Math.abs(creditFee) && <InsufficientCreditsModal />}
         <CustomField
           control={form.control}
           name="title"
@@ -229,6 +232,7 @@ const TransformationForm = ({
                 onValueChange={(value) =>
                   onSelectFieldHandler(value, field.onChange)
                 }
+                value={field.value}
               >
                 <SelectTrigger className="select-field">
                   <SelectValue placeholder="Select size" />
@@ -311,13 +315,13 @@ const TransformationForm = ({
             )}
           />
 
-          <TransformedImage 
-           image={image}
-           type={type}
-           title={form.getValues().title}
-           isTransforming={isTransforming}
-           setIsTransforming={setIsTransforming}
-           transformationConfig={transformationConfig}
+          <TransformedImage
+            image={image}
+            type={type}
+            title={form.getValues().title}
+            isTransforming={isTransforming}
+            setIsTransforming={setIsTransforming}
+            transformationConfig={transformationConfig}
           />
         </div>
 
