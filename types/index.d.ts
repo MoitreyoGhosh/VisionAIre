@@ -136,3 +136,15 @@ declare type CreateUserParams = {
     hasDownload?: boolean;
     setIsTransforming?: React.Dispatch<React.SetStateAction<boolean>>;
   };
+  
+  // type UserType = {
+  //   _id: string;
+  //   creditBalance: number;
+  // };
+  
+  // type ImageType = {
+  //   _id: string;
+  //   transformationType: string;
+  //   config: any;
+  // };
+  
